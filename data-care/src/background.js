@@ -1,3 +1,7 @@
+// Cargar pdf.js desde el archivo local
+self.importScripts('../libs/pdf.js');
+self.importScripts('../libs/pdf.worker.js');
+
 // Variable global para almacenar detalles del último error
 let lastError = null;
 let storedLink = null;
@@ -18,37 +22,48 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         sendResponse({ link: storedLink });
         storedLink = null; // Limpiar el enlace almacenado después de enviarlo
     } else if (message.action === "processPDFLink") {
-          
-        extractTextFromPDF("blob").then(text => {
-            pdfContent = text;
-            console.log("Contenido del PDF extraído:", text);
-            sendResponse({ text: text });
-        });
-        /*
         // Procesar el PDF
         fetch(message.href)
-            .then(response => response.blob())
-            .then(blob => {
-                // Aquí se podría usar una biblioteca como pdf-lib para leer el contenido del PDF
-                // Por simplicidad, suponemos que tenemos una función extractTextFromPDF para esto
-                
+            .then(response => response.arrayBuffer())
+            .then(arrayBuffer => {
+                // Usar pdf.js para extraer texto del PDF
+                extractTextFromPDF(arrayBuffer).then(text => {
+                    pdfContent = text;
+                    console.log("Contenido del PDF extraído:", text);
+                    sendResponse({ received: true });
+                });
             })
             .catch(error => {
                 lastError = error.message;
                 console.error("Error al procesar el PDF:", error);
                 sendResponse({ error: true, errorMessage: error.message });
-            });*/
+            });
     } else if (message.action === "getLastError") {
         sendResponse({ error: getLastError() });
+    } else if (message.action === "getPDFContent") {
+        sendResponse({ pdfContent });
     } else {
         sendResponse({ error: "Acción no reconocida" });
     }
     return true;
 });
 
-// Función ficticia para extraer texto de un PDF (deberías implementar esta función con una biblioteca adecuada)
-async function extractTextFromPDF(blob) {
-    return "Texto extraído del PDF (implementa esta función)";
+// Función para extraer texto de un PDF usando pdf.js
+async function extractTextFromPDF(arrayBuffer) {
+    const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
+    const pdfDoc = await loadingTask.promise;
+    const numPages = pdfDoc.numPages;
+    let text = '';
+
+    for (let pageNum = 1; pageNum <= numPages; pageNum++) {
+        const page = await pdfDoc.getPage(pageNum);
+        const textContent = await page.getTextContent();
+        text += textContent.items.map(item => item.str).join(' ') + '\n';
+    }
+
+    // Convertir el texto extraído en un prompt adecuado
+    const prompt = `Extracted PDF Content: \n${text}`;
+    return prompt;
 }
 
 // Función para obtener los detalles del último error

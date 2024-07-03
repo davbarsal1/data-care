@@ -129,17 +129,19 @@ document.addEventListener('DOMContentLoaded', () => {
             showLink(null, null);
         }
     });
-    chrome.runtime.sendMessage({ action: "processPDFLink" }, (response) => {
+
+    // Solicitar el contenido del PDF almacenado temporalmente
+    chrome.runtime.sendMessage({ action: "getPDFContent" }, (response) => {
         if (chrome.runtime.lastError) {
-            console.error("Error al solicitar el texto de pdf:", chrome.runtime.lastError);
+            console.error("Error al solicitar el contenido del PDF almacenado:", chrome.runtime.lastError);
             return;
         }
-        if (response.text) {
-            console.log("Mostrando texto:", response.text);
-            //showLink(response.link.href, response.link.textoEnlace);
+        if (response.pdfContent) {
+            console.log("Mostrando contenido del PDF recibido:", response.pdfContent);
+            showPDFContent(response.pdfContent);
         } else {
-            console.log("No se encontró texto");
-            //showLink(null, null);
+            console.log("No se encontró contenido del PDF.");
+            showPDFContent(null);
         }
     });
 

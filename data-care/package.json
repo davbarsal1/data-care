@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "pdf": "^0.1.0",
+    "pdf-lib": "^1.17.1",
+    "pdf.worker": "^1.0.0"
+  }
+}
