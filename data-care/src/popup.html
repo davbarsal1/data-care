@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>My Chrome Extension</title>
+    <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+    <div class="app">
+        <p class="counter-label">Data - Care</p>
+        <div id="loading">
+            <img src="../icons/loading.gif" alt="Loading...">
+            <p>Analizando elementos de la página en busca de políticas de privacidad...</p>
+        </div>
+        <div id="error-message">
+            <p>Error: <span id="error-details"></span></p>
+        </div>
+        <div id="pdf-section" style="display: none;">
+            <h2>Contenido del PDF</h2>
+            <div id="pdf-content"></div>
+        </div>
+        <div id="no-pdf-message" style="display: none;">
+            <p>No se encontraron enlaces de políticas de privacidad en formato PDF.</p>
+        </div>
+        <div id="enlaces-section" style="display: none;">
+            <p>No hemos podido encontrar la documentación sobre las políticas de privacidad de esta empresa. Pero es posible que esten en el siguiente enlace.</p>
+            <div id="enlaces-no-pdf"></div>
+        </div>
+        <div id="no-enlaces-message" style="display: none;">
+            <p>No se encontraron enlaces de políticas de privacidad.</p>
+        </div>
+        <div id="chat-section" style="display: none;">
+            <h2>Chat de ayuda</h2>
+            <p>Datos de contacto para gestionar tus datos:</p>
+            <!-- Aquí puedes agregar la lógica del chat para proporcionar información y automatizar el proceso -->
+        </div>
+        <form id="report-form">
+            <p>Reportar un enlace no detectado:</p>
+            <input type="file" id="image-input" accept="image/*">
+            <textarea id="report-text" placeholder="Escribe tu reporte aquí"></textarea>
+            <button type="submit">Enviar</button>
+        </form>
+        <p class="subtitle">Created by <code>David Barragán Salazar</code></p>
+    </div>
+
+    <script src="popup.js"></script>
+</body>
+</html>
