@@ -8,42 +8,45 @@
 <body>
     <div class="app">
         <p class="counter-label">Data - Care</p>
+        
+        <!-- Loading Indicator -->
         <div id="loading">
             <img src="../icons/loading.gif" alt="Loading...">
             <p>Analizando elementos de la página en busca de políticas de privacidad...</p>
         </div>
-        <div id="error-message">
+        
+        <!-- Error Message -->
+        <div id="error-message" style="display: none;">
             <p>Error: <span id="error-details"></span></p>
         </div>
-        <div id="pdf-section" style="display: none;">
-            <h2>Contenido del PDF</h2>
-            <div id="pdf-content"></div>
+        
+        <!-- Contact Information Section -->
+        <div id="contact-info-section" style="display: none;">
+            <p id="mensaje-no-contacto" style="display: none;">No hemos podido obtener las políticas de privacidad, pero es posible que estén en el siguiente enlace.</p>
+            <h2 id="titulo-contacto" style="display: none;">Información de Contacto</h2>
+            <div id="contact-info"></div>
+            <p id="pregunta-correo" style="display: none;">Hemos detectado un correo de contacto, ¿quieres gestionar tus datos enviando un mensaje?</p>
+            <div class="button-container">
+                <button id="si-correo" class="button" type="button">Sí</button>
+                <button id="no-correo" class="button" type="button">No</button>
+            </div>
         </div>
-        <div id="no-pdf-message" style="display: none;">
-            <p>No se encontraron enlaces de políticas de privacidad en formato PDF.</p>
-        </div>
-        <div id="enlaces-section" style="display: none;">
-            <h2>Enlaces de Políticas de Privacidad</h2>
-            <div id="enlaces-no-pdf"></div>
-        </div>
+        
+        <!-- No Links Message -->
         <div id="no-enlaces-message" style="display: none;">
-            <p>No se encontraron enlaces de políticas de privacidad.</p>
+            <p>No se encontró información de contacto ni enlaces de políticas de privacidad.</p>
         </div>
-        <div id="chat-section" style="display: none;">
-            <h2>Chat de ayuda</h2>
-            <p>Datos de contacto para gestionar tus datos:</p>
-            <!-- Aquí puedes agregar la lógica del chat para proporcionar información y automatizar el proceso -->
-        </div>
-        <hr class="divider" />
-        <form id="report-form">
+        
+        <!-- Report Form -->
+        <form id="report-form" style="display: none;">
             <p>Reportar un enlace no detectado:</p>
             <input type="file" id="image-input" accept="image/*">
             <textarea id="report-text" placeholder="Escribe tu reporte aquí"></textarea>
             <button type="submit">Enviar</button>
         </form>
+        
         <p class="subtitle">Created by <code>David Barragán Salazar</code></p>
     </div>
-
     <script src="popup.js"></script>
 </body>
 </html>

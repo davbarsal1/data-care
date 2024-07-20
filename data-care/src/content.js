@@ -3,11 +3,26 @@ function getSiteUrl() {
     return window.location.hostname;
 }
 
+let esPDF = null;
+let encontrado = false;
 // Función para buscar enlaces a páginas de políticas de privacidad y corregirlos si es necesario
 async function buscarEnlaces() {
     // Selecciona todos los enlaces en el documento
+    // Selecciona todos los elementos 'a'
     const enlaces = document.querySelectorAll('a');
 
+    // Filtra los enlaces que contienen 'privacy' en su href o en su texto
+    const enlacesFiltrados = Array.from(enlaces).filter(enlace => {
+    return enlace.href.includes('privacy') || enlace.textContent.includes('Privacidad');
+    });
+
+    // Mostrar los enlaces filtrados en la consola
+    enlacesFiltrados.forEach(enlace => {
+    console.log(enlace.href);
+    });
+    console.log("Enlaces:", enlaces);
+    // Obtiene el contenido HTML de la página actual
+    const pageContent = document.documentElement.outerHTML;
     // Itera sobre los enlaces encontrados
     for (const enlace of enlaces) {
         try {
@@ -29,23 +44,29 @@ async function buscarEnlaces() {
 
             // Obtiene el texto del enlace
             const textoEnlace = enlace.textContent.trim();
-
+            
             // Verifica si el texto del enlace contiene las palabras clave
             const contienePrivacidad = textoEnlace.toLowerCase().includes("privacidad") || textoEnlace.toLowerCase().includes("privacy");
-
             // Verifica si el enlace lleva a un PDF y contiene la palabra privacidad
             if (href.toLowerCase().endsWith(".pdf") && contienePrivacidad) {
                 console.log(`Enlace encontrado: ${href}`);
                 console.log(`Texto del enlace: ${textoEnlace}`);
                 console.log("Este enlace lleva a un PDF y contiene la palabra 'privacidad' o 'privacy'.");
                 const site = getSiteUrl();
+                esPDF = true;
+                encontrado = true;
                 // Envía el enlace al background.js para que sea procesado
-                chrome.runtime.sendMessage({ action: "processPDFLink", site, href, textoEnlace });
+                console.log("El mensaje es:", { action: "processPDFLink", site, href, textoEnlace, esPDF });
+                chrome.runtime.sendMessage({ action: "processPDFLink", site, href, textoEnlace, esPDF });
             } else if (contienePrivacidad) {
-                // Si el enlace no es un PDF pero contiene la palabra clave, envía el enlace al background.js para que sea mostrado en el popup
+                // Si el enlace no es un PDF pero contiene la palabra clave, enviar el contenido de la página al background.js para análisis
                 const site = getSiteUrl();
-                console.log(`El enlace "${textoEnlace}" no lleva a un PDF pero contiene la palabra 'privacidad' o 'privacy'. Enviando al background...`);
-                chrome.runtime.sendMessage({ action: "storeLink", site, href, textoEnlace });
+                esPDF = false;
+                encontrado = true;
+                console.log(`El enlace "${textoEnlace}" no lleva a un PDF pero contiene la palabra 'privacidad' o 'privacy'. Enviando el contenido de la página para análisis...`);
+                
+                // Enviar el contenido de la página junto con la información del enlace
+                chrome.runtime.sendMessage({ action: "analyzePageContent", site, href, textoEnlace, esPDF, pageContent });
             }
             console.log("-".repeat(50));
         } catch (error) {
@@ -67,3 +88,16 @@ const enlacesAnalizados = new Set();
 
 // Llamar a la función principal para iniciar la detección de políticas de privacidad y corregir los enlaces si es necesario
 detectarPoliticasPrivacidad();
+chrome.runtime.onMessage.addListener(
+    function(message, sender, sendResponse) {
+        switch(message.type) {
+            case "esPDF":
+                console.log("Es preguntado por el popup", esPDF);
+                sendResponse({esPDF});
+            case "encontrado":
+                console.log("Es preguntado por si es encontrado", encontrado);
+                sendResponse({encontrado});
+            break;
+        }
+    }
+);
